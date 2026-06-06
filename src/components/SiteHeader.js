@@ -15,8 +15,7 @@ export function SiteHeader({ leftNav, rightNav, mobileNav, social, homeHref = "#
       </nav>
 
       <a class="brand-logo" href="${homeHref}" aria-label="Cosmo Beads home">
-        <span>Cosmo</span>
-        <span>Beads</span>
+        <img src="/assets/logo_big.png" alt="Cosmo Beads" />
       </a>
 
       <nav class="desktop-nav nav-right" aria-label="Дополнительная навигация">
