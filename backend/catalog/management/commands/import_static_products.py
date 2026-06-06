@@ -16,6 +16,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--clear", action="store_true", help="Delete existing products, drops, and product images before import.")
+        parser.add_argument("--if-empty", action="store_true", help="Import only when the catalog has no products yet.")
 
     def handle(self, *args, **options):
         repo_root = settings.REPO_FRONTEND_ROOT
@@ -24,6 +25,10 @@ class Command(BaseCommand):
 
         if not products_dir.exists() or not drops_dir.exists():
             raise SystemExit("content/products and content/drops must exist.")
+
+        if options["if_empty"] and Product.objects.exists():
+            self.stdout.write("Catalog already has products. Skipping static import.")
+            return
 
         drop_payloads = [self.read_json(path) for path in sorted(drops_dir.glob("*.json"))]
         product_payloads = [self.read_json(path) for path in sorted(products_dir.glob("*.json"))]
