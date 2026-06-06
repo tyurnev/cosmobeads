@@ -1,5 +1,7 @@
 // @ts-check
 
+import { siteConfig } from "./siteConfig.js";
+
 const asset = (fileName) => `/assets/${fileName}`;
 
 /**
@@ -106,7 +108,7 @@ export const products = [
       materials: ["glass beads", "acrylic star charm", "stainless steel findings", "nylon jewelry thread"],
       size: "Длина: 38 см + удлинитель 5 см",
       care: ["хранить отдельно от косметики и воды", "протирать мягкой сухой тканью", "не растягивать застежку"],
-      delivery: "Доставка по России СДЭК/Почтой России после подтверждения заказа.",
+      delivery: siteConfig.deliveryText,
     },
     display: {
       windowTitle: "necklace.exe",
@@ -146,7 +148,7 @@ export const products = [
       materials: ["glass beads", "acrylic beads", "phone strap cord", "metal loop hardware"],
       size: "Длина: около 12 см вместе с петлей",
       care: ["не дергать за петлю", "держать вдали от духов и санитайзера", "снимать перед стиркой чехла"],
-      delivery: "Доставка по России СДЭК/Почтой России после подтверждения заказа.",
+      delivery: siteConfig.deliveryText,
     },
     display: {
       windowTitle: "phone-charm.exe",
@@ -186,7 +188,7 @@ export const products = [
       materials: ["glass beads", "acrylic pearl beads", "chrome bow charm", "stainless steel clasp"],
       size: "Обхват: 16 см + удлинитель 4 см",
       care: ["не мочить", "хранить в мешочке или коробке", "избегать сильного натяжения"],
-      delivery: "Доставка по России СДЭК/Почтой России после подтверждения заказа.",
+      delivery: siteConfig.deliveryText,
     },
     display: {
       windowTitle: "bracelet.exe",
@@ -226,7 +228,7 @@ export const products = [
       materials: ["glass beads", "acrylic moon charm", "metal clasp", "nylon jewelry thread"],
       size: "Длина: около 14 см вместе с карабином",
       care: ["снимать перед дождем", "не цеплять за тяжелые предметы", "протирать сухой тканью"],
-      delivery: "Доставка по России СДЭК/Почтой России после подтверждения заказа.",
+      delivery: siteConfig.deliveryText,
     },
     display: {
       windowTitle: "bag-charm.exe",
@@ -266,7 +268,7 @@ export const products = [
       materials: ["glass seed beads", "elastic jewelry cord", "acrylic accent beads"],
       size: "Размер: эластичный сет на 16-17 размер",
       care: ["надевать без сильного растяжения", "не хранить на солнце", "снимать перед душем"],
-      delivery: "Доставка по России СДЭК/Почтой России после подтверждения заказа.",
+      delivery: siteConfig.deliveryText,
     },
     display: {
       windowTitle: "ring-set.exe",

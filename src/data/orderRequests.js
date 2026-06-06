@@ -2,6 +2,7 @@
 
 export const CHECKOUT_SELECTION_STORAGE_KEY = "cosmobeads.checkoutSelection";
 export const ORDER_REQUESTS_STORAGE_KEY = "cosmobeads.orderRequests";
+export const ORDER_REQUEST_ENDPOINT = "/api/order-request";
 
 function getStorage() {
   try {
@@ -59,11 +60,11 @@ function createOrderId() {
   return `cb-${Date.now().toString(36)}`;
 }
 
-export function createOrderRequest({ product, fields }) {
+export function createOrderRequest({ product, fields, id = createOrderId(), source = "local_debug", status = "debug" }) {
   const orderRequest = {
-    id: createOrderId(),
-    status: "new",
-    source: "local_mock",
+    id,
+    status,
+    source,
     createdAt: new Date().toISOString(),
     product: {
       id: product.id,
@@ -88,6 +89,40 @@ export function createOrderRequest({ product, fields }) {
   };
 }
 
+export async function submitOrderRequest({ productSlug, fields, antiSpam }) {
+  const response = await fetch(ORDER_REQUEST_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      productSlug,
+      name: fields.name,
+      phone: fields.phone,
+      social: fields.social,
+      city: fields.city,
+      delivery: fields.delivery,
+      comment: fields.comment,
+      website: antiSpam.website,
+      formStartedAt: antiSpam.formStartedAt,
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({
+    ok: false,
+    error: "Server returned an unreadable response.",
+  }));
+
+  if (!response.ok || !payload.ok) {
+    throw Object.assign(new Error(payload.error || "Order request could not be sent."), {
+      statusCode: response.status,
+      payload,
+    });
+  }
+
+  return payload.orderRequest;
+}
+
 export function saveOrderRequest(orderRequest) {
   const orderRequests = getOrderRequests();
   orderRequests.unshift(orderRequest);
@@ -99,8 +134,12 @@ export function prepareTelegramNotificationPayload(orderRequest) {
   const lines = [
     "Новая заявка Cosmo Beads",
     `Номер: ${orderRequest.id}`,
+    `Дата: ${orderRequest.createdAt}`,
     `Изделие: ${orderRequest.product.name}`,
     `Цена: ${orderRequest.product.price.display}`,
+    `Slug: ${orderRequest.product.slug}`,
+    "",
+    "Покупатель",
     `Имя: ${orderRequest.customer.name}`,
     `Телефон: ${orderRequest.customer.phone}`,
     `Telegram/Instagram: ${orderRequest.customer.social}`,
@@ -116,14 +155,5 @@ export function prepareTelegramNotificationPayload(orderRequest) {
     channel: "telegram",
     ready: false,
     text: lines.join("\n"),
-  };
-}
-
-export async function sendTelegramNotification(orderRequest) {
-  return {
-    ok: false,
-    skipped: true,
-    reason: "Telegram notification is prepared but not connected yet.",
-    payload: orderRequest.telegramNotification,
   };
 }

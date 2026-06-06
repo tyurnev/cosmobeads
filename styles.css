@@ -1406,6 +1406,14 @@ h1 {
   margin-top: 22px;
 }
 
+.checkout-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .checkout-form label {
   display: grid;
   gap: 7px;
@@ -1552,6 +1560,12 @@ h1 {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(224, 255, 248, 0.84));
   color: #214d45;
   box-shadow: 0 4px 0 rgba(22, 191, 174, 0.18);
+}
+
+.checkout-result-card.pending {
+  border-color: rgba(32, 83, 255, 0.26);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(238, 241, 255, 0.84));
+  color: #343455;
 }
 
 .checkout-result-card.error {

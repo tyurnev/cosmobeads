@@ -4,6 +4,7 @@ import { bindSiteHeaderMenu } from "./src/components/SiteHeader.js";
 import { ProductDetailPage, bindProductGallery } from "./src/ProductDetailPage.js";
 import { getProductBySlug } from "./src/data/products.js";
 import { selectProductForCheckout } from "./src/data/orderRequests.js";
+import { siteConfig } from "./src/data/siteConfig.js";
 
 const appRoot = document.querySelector("#app");
 
@@ -45,6 +46,16 @@ function bindBuyProductLinks(root = document) {
   });
 }
 
+function setDocumentMeta({ title = siteConfig.meta.defaultTitle, description = siteConfig.meta.defaultDescription } = {}) {
+  document.title = title;
+
+  const metaDescription = document.querySelector('meta[name="description"]');
+
+  if (metaDescription) {
+    metaDescription.setAttribute("content", description);
+  }
+}
+
 if (appRoot) {
   const productRoute = getProductRoute();
   const checkoutRoute = getCheckoutRoute();
@@ -52,17 +63,22 @@ if (appRoot) {
   if (checkoutRoute) {
     const product = getProductBySlug(checkoutRoute.slug);
 
-    document.title = product ? `Заявка на ${product.name} - Cosmo Beads` : "Checkout - Cosmo Beads";
+    setDocumentMeta({
+      title: product ? `Заявка на ${product.name} - ${siteConfig.brandName}` : `Checkout - ${siteConfig.brandName}`,
+    });
     appRoot.innerHTML = CheckoutPage({ slug: checkoutRoute.slug });
     bindCheckoutForm(appRoot);
   } else if (productRoute) {
     const product = getProductBySlug(productRoute.slug);
 
-    document.title = product ? `${product.name} - Cosmo Beads` : "Product not found - Cosmo Beads";
+    setDocumentMeta({
+      title: product ? `${product.name} - ${siteConfig.brandName}` : `Product not found - ${siteConfig.brandName}`,
+      description: product?.description ?? siteConfig.meta.defaultDescription,
+    });
     appRoot.innerHTML = ProductDetailPage({ slug: productRoute.slug });
     bindProductGallery(appRoot);
   } else {
-    document.title = "Cosmo Beads - handmade Y2K bead pieces";
+    setDocumentMeta();
     appRoot.innerHTML = HomePage();
   }
 

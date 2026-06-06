@@ -1,5 +1,6 @@
 import { toArchiveItem, toProductPreviewCard } from "./productDisplay.js";
 import { getCurrentDrop, getCurrentDropProducts, getSoldOutProducts } from "./products.js";
+import { siteConfig } from "./siteConfig.js";
 
 const asset = (fileName) => `/assets/${fileName}`;
 
@@ -24,8 +25,8 @@ export const homepageData = {
       { label: "Доставка", href: "#delivery" },
     ],
     social: {
-      label: "IG/TG",
-      href: "https://instagram.com",
+      label: siteConfig.contacts.label,
+      href: siteConfig.contacts.instagramUrl,
     },
   },
   hero: {
@@ -63,13 +64,13 @@ export const homepageData = {
   archive: {
     eyebrow: "sold out folder",
     title: "Sold Out Archive",
-    link: { label: "telegram", href: "https://t.me/" },
+    link: { label: "telegram", href: siteConfig.contacts.telegramUrl },
     items: soldOutProducts.map(toArchiveItem),
     copy: {
       eyebrow: "personal archive",
       title: "прошлые изделия как коллекционные файлы",
       text: "Если хочется похожий вайб, можно написать и поймать близкую версию в новом дропе.",
-      cta: { label: "Сообщить о похожем", href: "https://t.me/" },
+      cta: { label: "Сообщить о похожем", href: siteConfig.contacts.telegramUrl },
     },
   },
   trust: [
@@ -86,7 +87,7 @@ export const homepageData = {
     {
       number: "03",
       title: "доставка по России",
-      text: "бережная упаковка и трек после передачи заказа",
+      text: siteConfig.deliveryText,
     },
     {
       number: "04",
@@ -97,7 +98,7 @@ export const homepageData = {
   finalCta: {
     eyebrow: "cosmo cart",
     title: "Забрать изделие из дропа",
-    copy: "Выбери украшение, напиши в Telegram или Instagram, и мы закрепим его за тобой.",
-    cta: { label: "Смотреть дроп", href: "https://t.me/" },
+    copy: siteConfig.orderContactExplanation,
+    cta: { label: "Смотреть дроп", href: siteConfig.contacts.telegramUrl },
   },
 };

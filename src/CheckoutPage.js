@@ -1,11 +1,12 @@
 import { homepageData } from "./data/homepageData.js";
 import { contactLinks, getProductBadge, getProductStock } from "./data/productDisplay.js";
 import { getProductBySlug, PRODUCT_STATUSES } from "./data/products.js";
+import { siteConfig } from "./data/siteConfig.js";
 import {
   createOrderRequest,
   getSelectedCheckoutProductSlug,
   saveOrderRequest,
-  sendTelegramNotification,
+  submitOrderRequest,
 } from "./data/orderRequests.js";
 import { SiteHeader } from "./components/SiteHeader.js";
 import { StickerBadge } from "./components/StickerBadge.js";
@@ -76,8 +77,8 @@ function CheckoutSummary({ product }) {
           <p>${product.description}</p>
         </div>
         <div class="checkout-contact-note">
-          <span>no online payment yet</span>
-          <p>После заявки мы подтвердим наличие, доставку и оплату вручную в Telegram или Instagram.</p>
+          <span>без онлайн-оплаты</span>
+          <p>${siteConfig.orderContactExplanation}</p>
         </div>
       </div>
     `,
@@ -115,6 +116,8 @@ function CheckoutSoldOut({ product }) {
 }
 
 function CheckoutForm({ product }) {
+  const formStartedAt = Date.now();
+
   return Y2KWindowCard({
     title: "order-request.exe",
     tag: "section",
@@ -126,6 +129,12 @@ function CheckoutForm({ product }) {
         <p class="checkout-lead">Без регистрации и онлайн-оплаты. Заполни контакты, а мы подтвердим заказ вручную.</p>
 
         <form class="checkout-form" data-checkout-form data-product-slug="${product.slug}">
+          <label class="checkout-honeypot" aria-hidden="true">
+            <span>Website</span>
+            <input name="website" type="text" autocomplete="off" tabindex="-1" />
+          </label>
+          <input name="formStartedAt" type="hidden" value="${formStartedAt}" />
+
           <label>
             <span>Имя</span>
             <input name="name" type="text" autocomplete="name" required />
@@ -157,7 +166,7 @@ function CheckoutForm({ product }) {
           </label>
 
           <button class="button primary checkout-submit" type="submit">Оставить заявку</button>
-          <p class="checkout-fine-print">Заявка сохранится локально/mock. Telegram-уведомление уже подготовлено в коде, но пока не отправляется.</p>
+          <p class="checkout-fine-print">${siteConfig.orderContactExplanation}</p>
         </form>
 
         <div class="checkout-result" data-checkout-result aria-live="polite"></div>
@@ -208,9 +217,28 @@ function getFormFields(form) {
   };
 }
 
+function getAntiSpamFields(form) {
+  const formData = new FormData(form);
+
+  return {
+    website: String(formData.get("website") ?? "").trim(),
+    formStartedAt: Number(formData.get("formStartedAt")),
+  };
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 export function bindCheckoutForm(root = document) {
   const form = root.querySelector("[data-checkout-form]");
   const result = root.querySelector("[data-checkout-result]");
+  let isSubmitting = false;
 
   if (!form || !result) {
     return;
@@ -219,35 +247,83 @@ export function bindCheckoutForm(root = document) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    if (isSubmitting || form.classList.contains("is-submitted")) {
+      return;
+    }
+
     const product = getProductBySlug(form.dataset.productSlug);
     const submitButton = form.querySelector("button[type='submit']");
+    const fields = getFormFields(form);
+    const antiSpam = getAntiSpamFields(form);
 
     if (!product || product.status === PRODUCT_STATUSES.SOLD_OUT) {
       result.innerHTML = `<div class="checkout-result-card error">Не получилось найти доступное изделие для заявки.</div>`;
       return;
     }
 
-    const orderRequest = createOrderRequest({
-      product,
-      fields: getFormFields(form),
-    });
-    const isSaved = saveOrderRequest(orderRequest);
+    isSubmitting = true;
 
-    await sendTelegramNotification(orderRequest);
-
-    form.classList.add("is-submitted");
     if (submitButton) {
       submitButton.disabled = true;
-      submitButton.textContent = "Заявка сохранена";
+      submitButton.textContent = "Отправляем...";
     }
 
-    result.innerHTML = `
-      <div class="checkout-result-card">
-        <p class="eyebrow">saved locally</p>
-        <h2>Заявка принята</h2>
-        <p>Номер заявки: <strong>${orderRequest.id}</strong></p>
-        <p>${isSaved ? "Мы сохранили ее локально/mock." : "Локальное сохранение недоступно в этом окружении."} Следующий шаг в коде уже подготовлен: подключить отправку этого текста в Telegram.</p>
-      </div>
-    `;
+    result.innerHTML = `<div class="checkout-result-card pending">Отправляем заявку в Telegram...</div>`;
+
+    try {
+      const deliveredOrder = await submitOrderRequest({
+        productSlug: product.slug,
+        fields,
+        antiSpam,
+      });
+      const debugOrder = createOrderRequest({
+        product,
+        fields,
+        id: deliveredOrder.id,
+        source: "api_delivered_debug",
+        status: "sent",
+      });
+      saveOrderRequest({
+        ...debugOrder,
+        createdAt: deliveredOrder.createdAt,
+      });
+
+      form.classList.add("is-submitted");
+      if (submitButton) {
+        submitButton.textContent = "Заявка отправлена";
+      }
+
+      result.innerHTML = `
+        <div class="checkout-result-card">
+          <p class="eyebrow">order sent</p>
+          <h2>Заявка отправлена</h2>
+          <p>Номер заявки: <strong>${escapeHtml(deliveredOrder.id)}</strong></p>
+          <p>${siteConfig.orderSuccessText}</p>
+        </div>
+      `;
+    } catch (error) {
+      const debugOrder = createOrderRequest({
+        product,
+        fields,
+        source: "local_debug_not_delivered",
+        status: "delivery_failed",
+      });
+      const isSaved = saveOrderRequest(debugOrder);
+      isSubmitting = false;
+
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Оставить заявку";
+      }
+
+      result.innerHTML = `
+        <div class="checkout-result-card error">
+          <p class="eyebrow">not sent</p>
+          <h2>Заявка не отправилась</h2>
+          <p>${escapeHtml(error.message)}</p>
+          <p>Попробуй отправить еще раз или напиши нам напрямую: ${isSaved ? "мы сохранили черновик в этом браузере." : "черновик в браузере сохранить не удалось."}</p>
+        </div>
+      `;
+    }
   });
 }

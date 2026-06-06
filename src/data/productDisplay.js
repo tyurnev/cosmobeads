@@ -1,4 +1,5 @@
 import { PRODUCT_BADGES, PRODUCT_STATUSES } from "./products.js";
+import { siteConfig } from "./siteConfig.js";
 
 const badgeToneByLabel = {
   [PRODUCT_BADGES.NEW_DROP]: "green",
@@ -12,8 +13,8 @@ const stockToneByStatus = {
 };
 
 export const contactLinks = {
-  telegram: "https://t.me/",
-  instagram: "https://instagram.com",
+  telegram: siteConfig.contacts.telegramUrl,
+  instagram: siteConfig.contacts.instagramUrl,
 };
 
 export function getProductPagePath(product) {

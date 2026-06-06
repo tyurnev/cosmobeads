@@ -7,6 +7,7 @@ import {
   toProductPreviewCard,
 } from "./data/productDisplay.js";
 import { getCurrentDrop, getCurrentDropProducts, getProductBySlug, PRODUCT_STATUSES } from "./data/products.js";
+import { siteConfig } from "./data/siteConfig.js";
 import { ProductPreviewCard } from "./components/ProductPreviewCard.js";
 import { SiteHeader } from "./components/SiteHeader.js";
 import { StickerBadge } from "./components/StickerBadge.js";
@@ -125,7 +126,7 @@ function ProductBuyPanel({ product, currentDrop }) {
         </div>
 
         <p class="product-contact-note">
-          Бронь и вопросы через Telegram/Instagram. Ответим по наличию, упаковке и доставке по России.
+          ${siteConfig.orderContactExplanation}
         </p>
       </div>
     `,
@@ -215,7 +216,7 @@ function ProductContactBand({ isSoldOut }) {
         <p>
           ${isSoldOut
             ? "Напиши, если хочется похожую версию: подберем бусины, длину и настроение под новый мини-дроп."
-            : "Напиши в Telegram или Instagram: закрепим изделие, уточним детали и отправим по России."}
+            : siteConfig.orderContactExplanation}
         </p>
       </div>
       <div class="product-contact-actions">
