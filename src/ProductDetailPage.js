@@ -1,4 +1,4 @@
-import { homepageData } from "./data/homepageData.js";
+import { getHomepageData } from "./data/homepageData.js";
 import {
   contactLinks,
   getCheckoutPath,
@@ -19,17 +19,21 @@ const homeSectionLink = (item) => ({
   href: item.href.startsWith("#") ? `/${item.href}` : item.href,
 });
 
-const productHeaderData = {
-  ...homepageData.header,
-  homeHref: "/",
-  leftNav: homepageData.header.leftNav.map(homeSectionLink),
-  rightNav: homepageData.header.rightNav.map(homeSectionLink),
-  mobileNav: homepageData.header.mobileNav.map(homeSectionLink),
-};
+function getProductHeaderData() {
+  const homepageData = getHomepageData();
+
+  return {
+    ...homepageData.header,
+    homeHref: "/",
+    leftNav: homepageData.header.leftNav.map(homeSectionLink),
+    rightNav: homepageData.header.rightNav.map(homeSectionLink),
+    mobileNav: homepageData.header.mobileNav.map(homeSectionLink),
+  };
+}
 
 function ProductNotFoundPage() {
   return `
-    ${SiteHeader(productHeaderData)}
+    ${SiteHeader(getProductHeaderData())}
     <main class="product-page-main">
       <section class="section product-not-found" aria-labelledby="missing-product-title">
         ${Y2KWindowCard({
@@ -257,7 +261,7 @@ export function ProductDetailPage({ slug }) {
   const isSoldOut = product.status === PRODUCT_STATUSES.SOLD_OUT;
 
   return `
-    ${SiteHeader(productHeaderData)}
+    ${SiteHeader(getProductHeaderData())}
 
     <main class="product-page-main">
       <section class="product-detail-hero" aria-labelledby="product-title">

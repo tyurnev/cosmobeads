@@ -1,0 +1,47 @@
+{
+  "id": "star-soda-necklace",
+  "slug": "star-soda-necklace",
+  "dropId": "cosmic-drop-06",
+  "name": "Star Soda Necklace",
+  "description": "Pastel glass bead necklace with a tiny star detail.",
+  "status": "available",
+  "badges": ["1 of 1"],
+  "price": {
+    "amount": 2900,
+    "currency": "RUB",
+    "display": "2 900 ₽"
+  },
+  "stock": {
+    "quantity": 1,
+    "label": "в наличии: 1 шт.",
+    "unit": "piece"
+  },
+  "media": {
+    "image": "/assets/products/drop-necklace.jpg",
+    "imageAlt": "Star Soda Necklace with pastel glass beads",
+    "gallery": [
+      {
+        "image": "/assets/products/drop-necklace.jpg",
+        "imageAlt": "Star Soda Necklace with pastel glass beads"
+      },
+      {
+        "image": "/assets/products/drop-necklace.png",
+        "imageAlt": "Star Soda Necklace on a transparent pastel Y2K backdrop"
+      }
+    ]
+  },
+  "details": {
+    "emotionalDescription": "A tiny soda-pop constellation for collarbones: sweet, shiny, and just dramatic enough to feel like a secret lucky file.",
+    "materials": ["glass beads", "acrylic star charm", "stainless steel findings", "nylon jewelry thread"],
+    "size": "Длина: 38 см + удлинитель 5 см",
+    "care": ["хранить отдельно от косметики и воды", "протирать мягкой сухой тканью", "не растягивать застежку"],
+    "delivery": "Доставка по России: СДЭК, Почта России или курьер по договоренности. Финальные детали подтвердим после заявки."
+  },
+  "display": {
+    "windowTitle": "necklace.exe",
+    "availableCtaLabel": "Забрать",
+    "soldOutCtaLabel": "Смотреть"
+  },
+  "sortOrder": 10,
+  "archiveCaption": "Star Soda Necklace"
+}

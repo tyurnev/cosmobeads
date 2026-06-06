@@ -1,0 +1,47 @@
+{
+  "id": "pixel-planet-charm",
+  "slug": "pixel-planet-charm",
+  "dropId": "cosmic-drop-06",
+  "name": "Pixel Planet Charm",
+  "description": "Blue and lime phone charm inspired by tiny pixel planets.",
+  "status": "available",
+  "badges": ["new drop"],
+  "price": {
+    "amount": 1400,
+    "currency": "RUB",
+    "display": "1 400 ₽"
+  },
+  "stock": {
+    "quantity": 2,
+    "label": "в наличии: 2 шт.",
+    "unit": "piece"
+  },
+  "media": {
+    "image": "/assets/products/drop-phone-charm.jpg",
+    "imageAlt": "Pixel Planet phone charm with blue and lime beads",
+    "gallery": [
+      {
+        "image": "/assets/products/drop-phone-charm.jpg",
+        "imageAlt": "Pixel Planet phone charm with blue and lime beads"
+      },
+      {
+        "image": "/assets/products/drop-phone-charm.png",
+        "imageAlt": "Pixel Planet phone charm on a transparent pastel Y2K backdrop"
+      }
+    ]
+  },
+  "details": {
+    "emotionalDescription": "A little planet for your phone, bag, or keys: bright, bouncy, and very main-character in a flip-phone universe.",
+    "materials": ["glass beads", "acrylic beads", "phone strap cord", "metal loop hardware"],
+    "size": "Длина: около 12 см вместе с петлей",
+    "care": ["не дергать за петлю", "держать вдали от духов и санитайзера", "снимать перед стиркой чехла"],
+    "delivery": "Доставка по России: СДЭК, Почта России или курьер по договоренности. Финальные детали подтвердим после заявки."
+  },
+  "display": {
+    "windowTitle": "phone-charm.exe",
+    "availableCtaLabel": "Забрать",
+    "soldOutCtaLabel": "Смотреть"
+  },
+  "sortOrder": 20,
+  "archiveCaption": "Planet Charm v1"
+}

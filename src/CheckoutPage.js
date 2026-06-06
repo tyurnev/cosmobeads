@@ -1,4 +1,4 @@
-import { homepageData } from "./data/homepageData.js";
+import { getHomepageData } from "./data/homepageData.js";
 import { contactLinks, getProductBadge, getProductStock } from "./data/productDisplay.js";
 import { getProductBySlug, PRODUCT_STATUSES } from "./data/products.js";
 import { siteConfig } from "./data/siteConfig.js";
@@ -18,13 +18,17 @@ const homeSectionLink = (item) => ({
   href: item.href.startsWith("#") ? `/${item.href}` : item.href,
 });
 
-const checkoutHeaderData = {
-  ...homepageData.header,
-  homeHref: "/",
-  leftNav: homepageData.header.leftNav.map(homeSectionLink),
-  rightNav: homepageData.header.rightNav.map(homeSectionLink),
-  mobileNav: homepageData.header.mobileNav.map(homeSectionLink),
-};
+function getCheckoutHeaderData() {
+  const homepageData = getHomepageData();
+
+  return {
+    ...homepageData.header,
+    homeHref: "/",
+    leftNav: homepageData.header.leftNav.map(homeSectionLink),
+    rightNav: homepageData.header.rightNav.map(homeSectionLink),
+    mobileNav: homepageData.header.mobileNav.map(homeSectionLink),
+  };
+}
 
 function getCheckoutProduct(slug) {
   return getProductBySlug(slug || getSelectedCheckoutProductSlug());
@@ -32,7 +36,7 @@ function getCheckoutProduct(slug) {
 
 function CheckoutEmptyState() {
   return `
-    ${SiteHeader(checkoutHeaderData)}
+    ${SiteHeader(getCheckoutHeaderData())}
     <main class="checkout-main">
       <section class="checkout-empty-state" aria-labelledby="checkout-empty-title">
         ${Y2KWindowCard({
@@ -87,7 +91,7 @@ function CheckoutSummary({ product }) {
 
 function CheckoutSoldOut({ product }) {
   return `
-    ${SiteHeader(checkoutHeaderData)}
+    ${SiteHeader(getCheckoutHeaderData())}
     <main class="checkout-main">
       <div class="portal-strip checkout-portal-strip" aria-hidden="true">
         <span>request portal</span>
@@ -187,7 +191,7 @@ export function CheckoutPage({ slug = "" } = {}) {
   }
 
   return `
-    ${SiteHeader(checkoutHeaderData)}
+    ${SiteHeader(getCheckoutHeaderData())}
 
     <main class="checkout-main">
       <div class="portal-strip checkout-portal-strip" aria-hidden="true">

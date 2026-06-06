@@ -1,0 +1,47 @@
+{
+  "id": "chrome-bow-bracelet",
+  "slug": "chrome-bow-bracelet",
+  "dropId": "cosmic-drop-06",
+  "name": "Chrome Bow Bracelet",
+  "description": "Pink and lavender bracelet with a chrome bow accent.",
+  "status": "available",
+  "badges": ["last piece"],
+  "price": {
+    "amount": 1800,
+    "currency": "RUB",
+    "display": "1 800 ₽"
+  },
+  "stock": {
+    "quantity": 1,
+    "label": "последняя",
+    "unit": "piece"
+  },
+  "media": {
+    "image": "/assets/products/drop-bracelet.jpg",
+    "imageAlt": "Chrome Bow Bracelet with pink and lavender beads",
+    "gallery": [
+      {
+        "image": "/assets/products/drop-bracelet.jpg",
+        "imageAlt": "Chrome Bow Bracelet with pink and lavender beads"
+      },
+      {
+        "image": "/assets/products/drop-bracelet.png",
+        "imageAlt": "Chrome Bow Bracelet on a transparent pastel Y2K backdrop"
+      }
+    ]
+  },
+  "details": {
+    "emotionalDescription": "Soft pink, lavender shine, and a chrome bow moment: the bracelet equivalent of saving a perfect desktop wallpaper.",
+    "materials": ["glass beads", "acrylic pearl beads", "chrome bow charm", "stainless steel clasp"],
+    "size": "Обхват: 16 см + удлинитель 4 см",
+    "care": ["не мочить", "хранить в мешочке или коробке", "избегать сильного натяжения"],
+    "delivery": "Доставка по России: СДЭК, Почта России или курьер по договоренности. Финальные детали подтвердим после заявки."
+  },
+  "display": {
+    "windowTitle": "bracelet.exe",
+    "availableCtaLabel": "Забрать",
+    "soldOutCtaLabel": "Смотреть"
+  },
+  "sortOrder": 30,
+  "archiveCaption": "Pink Bow Bracelet"
+}

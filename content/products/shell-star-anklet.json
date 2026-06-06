@@ -1,0 +1,47 @@
+{
+  "id": "shell-star-anklet",
+  "slug": "shell-star-anklet",
+  "dropId": "cosmic-drop-06",
+  "name": "Shell Star Anklet",
+  "description": "Aqua and pale yellow anklet with shell and star details.",
+  "status": "sold_out",
+  "badges": ["sold out"],
+  "price": {
+    "amount": 2100,
+    "currency": "RUB",
+    "display": "2 100 ₽"
+  },
+  "stock": {
+    "quantity": 0,
+    "label": "архив",
+    "unit": "piece"
+  },
+  "media": {
+    "image": "/assets/products/drop-anklet.jpg",
+    "imageAlt": "Shell Star Anklet with aqua and pale yellow beads",
+    "gallery": [
+      {
+        "image": "/assets/products/drop-anklet.jpg",
+        "imageAlt": "Shell Star Anklet with aqua and pale yellow beads"
+      },
+      {
+        "image": "/assets/products/drop-anklet.png",
+        "imageAlt": "Shell Star Anklet on a transparent pastel Y2K backdrop"
+      }
+    ]
+  },
+  "details": {
+    "emotionalDescription": "Beachy, shiny, and already claimed: a little shell-star artifact from the archive that can inspire a close custom vibe.",
+    "materials": ["glass beads", "shell accent", "acrylic star charm", "stainless steel findings"],
+    "size": "Длина: 22 см + удлинитель 5 см",
+    "care": ["не мочить в море или бассейне", "хранить отдельно", "протирать после носки сухой тканью"],
+    "delivery": "Доставка по России для похожего изделия обсуждается в Telegram/Instagram."
+  },
+  "display": {
+    "windowTitle": "anklet.exe",
+    "availableCtaLabel": "Забрать",
+    "soldOutCtaLabel": "Смотреть"
+  },
+  "sortOrder": 60,
+  "archiveCaption": "Shell Star Anklet"
+}

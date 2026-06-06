@@ -1,4 +1,4 @@
-import { homepageData } from "./data/homepageData.js";
+import { getHomepageData } from "./data/homepageData.js";
 import { BrandWorldSection } from "./components/BrandWorldSection.js";
 import { DropSection } from "./components/DropSection.js";
 import { FinalCTA } from "./components/FinalCTA.js";
@@ -8,6 +8,8 @@ import { SoldOutArchivePreview } from "./components/SoldOutArchivePreview.js";
 import { TrustSection } from "./components/TrustSection.js";
 
 export function HomePage() {
+  const homepageData = getHomepageData();
+
   return `
     ${SiteHeader(homepageData.header)}
 

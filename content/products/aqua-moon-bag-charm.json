@@ -1,0 +1,47 @@
+{
+  "id": "aqua-moon-bag-charm",
+  "slug": "aqua-moon-bag-charm",
+  "dropId": "cosmic-drop-06",
+  "name": "Aqua Moon Bag Charm",
+  "description": "Peach and turquoise bag charm with a glossy moon accent.",
+  "status": "available",
+  "badges": ["new drop"],
+  "price": {
+    "amount": 1600,
+    "currency": "RUB",
+    "display": "1 600 ₽"
+  },
+  "stock": {
+    "quantity": 1,
+    "label": "в наличии: 1 шт.",
+    "unit": "piece"
+  },
+  "media": {
+    "image": "/assets/products/drop-bag-charm.jpg",
+    "imageAlt": "Aqua Moon bag charm with peach and turquoise beads",
+    "gallery": [
+      {
+        "image": "/assets/products/drop-bag-charm.jpg",
+        "imageAlt": "Aqua Moon bag charm with peach and turquoise beads"
+      },
+      {
+        "image": "/assets/products/drop-bag-charm.png",
+        "imageAlt": "Aqua Moon bag charm on a transparent pastel Y2K backdrop"
+      }
+    ]
+  },
+  "details": {
+    "emotionalDescription": "A glossy moon charm for turning an everyday bag into a tiny portal object from your favorite 2000s folder.",
+    "materials": ["glass beads", "acrylic moon charm", "metal clasp", "nylon jewelry thread"],
+    "size": "Длина: около 14 см вместе с карабином",
+    "care": ["снимать перед дождем", "не цеплять за тяжелые предметы", "протирать сухой тканью"],
+    "delivery": "Доставка по России: СДЭК, Почта России или курьер по договоренности. Финальные детали подтвердим после заявки."
+  },
+  "display": {
+    "windowTitle": "bag-charm.exe",
+    "availableCtaLabel": "Забрать",
+    "soldOutCtaLabel": "Смотреть"
+  },
+  "sortOrder": 40,
+  "archiveCaption": "Aqua Moon Bag Charm"
+}

@@ -2,7 +2,7 @@ import { HomePage } from "./src/App.js";
 import { CheckoutPage, bindCheckoutForm } from "./src/CheckoutPage.js";
 import { bindSiteHeaderMenu } from "./src/components/SiteHeader.js";
 import { ProductDetailPage, bindProductGallery } from "./src/ProductDetailPage.js";
-import { getProductBySlug } from "./src/data/products.js";
+import { getProductBySlug, loadProductCatalog } from "./src/data/products.js";
 import { selectProductForCheckout } from "./src/data/orderRequests.js";
 import { siteConfig } from "./src/data/siteConfig.js";
 
@@ -56,7 +56,9 @@ function setDocumentMeta({ title = siteConfig.meta.defaultTitle, description = s
   }
 }
 
-if (appRoot) {
+async function renderApp() {
+  await loadProductCatalog();
+
   const productRoute = getProductRoute();
   const checkoutRoute = getCheckoutRoute();
 
@@ -84,4 +86,24 @@ if (appRoot) {
 
   bindSiteHeaderMenu(appRoot);
   bindBuyProductLinks(appRoot);
+}
+
+if (appRoot) {
+  renderApp().catch((error) => {
+    console.error(error);
+    setDocumentMeta();
+    appRoot.innerHTML = `
+      <main class="checkout-main">
+        <section class="checkout-empty-state">
+          <div class="window-card checkout-window">
+            <div class="checkout-window-body">
+              <p class="eyebrow">catalog error</p>
+              <h1>Не получилось загрузить товары</h1>
+              <p class="checkout-lead">Обнови страницу. Если ошибка повторится, напиши нам напрямую через контакты.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    `;
+  });
 }

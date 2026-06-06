@@ -14,6 +14,16 @@
 - Confirm product image/gallery loads.
 - Confirm name, price, stock status, badge, description, materials, size, care, and delivery are visible.
 - Confirm `Купить` appears only for available products.
+- Confirm a newly added CMS product opens at `/product/<slug>/` after refresh.
+
+## CMS Content Check
+
+- Open `/admin/`.
+- Confirm `Products` and `Drops` collections are visible.
+- Confirm product images upload to `assets/products`.
+- Confirm a product saved in Decap creates or updates a JSON file in `content/products`.
+- Confirm setting product `dropId` to the current drop makes it appear on the homepage.
+- Confirm missing optional fields use fallback text instead of breaking the page.
 
 ## Checkout Check
 

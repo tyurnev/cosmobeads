@@ -1,0 +1,47 @@
+{
+  "id": "bubble-ring-set",
+  "slug": "bubble-ring-set",
+  "dropId": "cosmic-drop-06",
+  "name": "Bubble Ring Set",
+  "description": "Clear blue and pink bead ring set with soft bubble shine.",
+  "status": "available",
+  "badges": ["1 of 1"],
+  "price": {
+    "amount": 1200,
+    "currency": "RUB",
+    "display": "1 200 ₽"
+  },
+  "stock": {
+    "quantity": 1,
+    "label": "в наличии: 1 сет",
+    "unit": "set"
+  },
+  "media": {
+    "image": "/assets/products/drop-rings.jpg",
+    "imageAlt": "Bubble Ring Set with clear blue and pink beads",
+    "gallery": [
+      {
+        "image": "/assets/products/drop-rings.jpg",
+        "imageAlt": "Bubble Ring Set with clear blue and pink beads"
+      },
+      {
+        "image": "/assets/products/drop-rings.png",
+        "imageAlt": "Bubble Ring Set on a transparent pastel Y2K backdrop"
+      }
+    ]
+  },
+  "details": {
+    "emotionalDescription": "Clear little bubbles for stacking, mixing, and making your hands look like they just clicked through a glossy portal.",
+    "materials": ["glass seed beads", "elastic jewelry cord", "acrylic accent beads"],
+    "size": "Размер: эластичный сет на 16-17 размер",
+    "care": ["надевать без сильного растяжения", "не хранить на солнце", "снимать перед душем"],
+    "delivery": "Доставка по России: СДЭК, Почта России или курьер по договоренности. Финальные детали подтвердим после заявки."
+  },
+  "display": {
+    "windowTitle": "ring-set.exe",
+    "availableCtaLabel": "Забрать",
+    "soldOutCtaLabel": "Смотреть"
+  },
+  "sortOrder": 50,
+  "archiveCaption": "Bubble Ring Set"
+}

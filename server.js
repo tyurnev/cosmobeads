@@ -1,12 +1,14 @@
-import { createReadStream, existsSync, readFileSync } from "node:fs";
+import { createReadStream, existsSync, readdirSync, readFileSync } from "node:fs";
 import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { products, PRODUCT_STATUSES } from "./src/data/products.js";
+import { normalizeCatalog, products, PRODUCT_STATUSES, setProductCatalog } from "./src/data/products.js";
 import { siteConfig } from "./src/data/siteConfig.js";
 
 const rootDir = fileURLToPath(new URL(".", import.meta.url));
+const productsContentDir = join(rootDir, "content/products");
+const dropsContentDir = join(rootDir, "content/drops");
 const port = Number(process.env.PORT ?? 5173);
 const maxBodyBytes = 64 * 1024;
 const minSubmitMs = 3000;
@@ -22,6 +24,8 @@ const contentTypes = {
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".webp": "image/webp",
+  ".yaml": "text/yaml; charset=utf-8",
+  ".yml": "text/yaml; charset=utf-8",
 };
 
 loadEnvFile();
@@ -56,6 +60,41 @@ function loadEnvFile() {
       process.env[key] = value;
     }
   });
+}
+
+function readJsonContentFiles(directory) {
+  if (!existsSync(directory)) {
+    return [];
+  }
+
+  return readdirSync(directory, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .map((entry) => join(directory, entry.name))
+    .sort()
+    .map((filePath) => JSON.parse(readFileSync(filePath, "utf8")));
+}
+
+function loadContentCatalog() {
+  const catalog = normalizeCatalog({
+    products: readJsonContentFiles(productsContentDir),
+    drops: readJsonContentFiles(dropsContentDir),
+  });
+
+  setProductCatalog(catalog);
+
+  return catalog;
+}
+
+function handleContentCatalog(response) {
+  try {
+    sendJson(response, 200, { ok: true, ...loadContentCatalog() });
+  } catch (error) {
+    console.error(error);
+    sendJson(response, 500, {
+      ok: false,
+      error: "Catalog content could not be loaded.",
+    });
+  }
 }
 
 function sendJson(response, statusCode, payload) {
@@ -226,31 +265,45 @@ function createTelegramMessage({ orderId, createdAt, product, fields }) {
 
 async function sendTelegramMessage(text) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const chatIds = String(process.env.TELEGRAM_CHAT_ID ?? "")
+    .split(",")
+    .map((chatId) => chatId.trim())
+    .filter(Boolean);
 
-  if (!botToken || !chatId) {
+  if (!botToken || !chatIds.length) {
     throw Object.assign(new Error("Telegram delivery is not configured."), { statusCode: 500 });
   }
 
-  const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      disable_web_page_preview: true,
+  const results = await Promise.all(
+    chatIds.map(async (chatId) => {
+      const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          disable_web_page_preview: true,
+        }),
+      });
+      const responseText = await telegramResponse.text();
+
+      return {
+        ok: telegramResponse.ok,
+        chatId,
+        status: telegramResponse.status,
+        response: responseText,
+      };
     }),
-  });
+  );
 
-  const responseText = await telegramResponse.text();
+  const failedDeliveries = results.filter((result) => !result.ok);
 
-  if (!telegramResponse.ok) {
+  if (failedDeliveries.length) {
     throw Object.assign(new Error("Telegram delivery failed."), {
       statusCode: 502,
-      telegramStatus: telegramResponse.status,
-      telegramResponse: responseText,
+      failedDeliveries,
     });
   }
 }
@@ -263,6 +316,8 @@ async function handleOrderRequest(request, response) {
 
   try {
     const payload = await readJsonRequest(request);
+    loadContentCatalog();
+
     const validation = validateOrderRequest(payload);
 
     if (!validation.ok) {
@@ -335,13 +390,15 @@ async function serveStaticFile(request, response) {
       filePath = join(filePath, "index.html");
     }
 
-    const extension = extname(filePath);
-
-    response.writeHead(200, {
-      "Content-Type": contentTypes[extension] ?? "application/octet-stream",
-    });
-    createReadStream(filePath).pipe(response);
+    streamStaticFile(filePath, response);
   } catch {
+    const fallbackFilePath = getRouteFallbackFilePath(url.pathname);
+
+    if (fallbackFilePath && existsSync(fallbackFilePath)) {
+      streamStaticFile(fallbackFilePath, response);
+      return;
+    }
+
     response.writeHead(404, {
       "Content-Type": "text/html; charset=utf-8",
     });
@@ -349,8 +406,34 @@ async function serveStaticFile(request, response) {
   }
 }
 
+function getRouteFallbackFilePath(pathname) {
+  if (pathname === "/product" || pathname.startsWith("/product/")) {
+    return join(rootDir, "product/index.html");
+  }
+
+  if (pathname === "/checkout" || pathname.startsWith("/checkout/")) {
+    return join(rootDir, "checkout/index.html");
+  }
+
+  return null;
+}
+
+function streamStaticFile(filePath, response) {
+  const extension = extname(filePath);
+
+  response.writeHead(200, {
+    "Content-Type": contentTypes[extension] ?? "application/octet-stream",
+  });
+  createReadStream(filePath).pipe(response);
+}
+
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
+
+  if (url.pathname === "/api/content/catalog") {
+    handleContentCatalog(response);
+    return;
+  }
 
   if (url.pathname === "/api/order-request") {
     await handleOrderRequest(request, response);

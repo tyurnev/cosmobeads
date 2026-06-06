@@ -1,0 +1,154 @@
+backend:
+  name: github
+  repo: tyurnev/cosmobeads
+  branch: main
+
+local_backend: true
+media_folder: "assets/products"
+public_folder: "/assets/products"
+locale: "ru"
+
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: "products"
+    label: "Products"
+    label_singular: "Product"
+    folder: "content/products"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    identifier_field: "name"
+    slug: "{{fields.slug}}"
+    summary: "{{name}} - {{status}} - {{price.display}}"
+    sortable_fields: ["sortOrder", "name", "status", "dropId"]
+    preview_path: "product/{{slug}}/"
+    editor:
+      preview: false
+    fields:
+      - { label: "ID", name: "id", widget: "string", hint: "Stable unique id. Usually the same as slug." }
+      - { label: "Slug", name: "slug", widget: "string", hint: "URL path: /product/this-value/" }
+      - label: "Drop"
+        name: "dropId"
+        widget: "relation"
+        collection: "drops"
+        search_fields: ["title", "id", "slug"]
+        value_field: "id"
+        display_fields: ["title", "id"]
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Short Description", name: "description", widget: "text" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        options:
+          - { label: "Available", value: "available" }
+          - { label: "Sold out", value: "sold_out" }
+          - { label: "Hidden", value: "hidden" }
+      - label: "Badges"
+        name: "badges"
+        widget: "select"
+        multiple: true
+        min: 0
+        options:
+          - "1 of 1"
+          - "new drop"
+          - "last piece"
+          - "sold out"
+      - label: "Price"
+        name: "price"
+        widget: "object"
+        fields:
+          - { label: "Amount", name: "amount", widget: "number", value_type: "int", min: 0 }
+          - { label: "Currency", name: "currency", widget: "string", default: "RUB" }
+          - { label: "Display", name: "display", widget: "string", hint: "Example: 2 900 ₽" }
+      - label: "Stock"
+        name: "stock"
+        widget: "object"
+        fields:
+          - { label: "Quantity", name: "quantity", widget: "number", value_type: "int", min: 0, default: 1 }
+          - { label: "Label", name: "label", widget: "string", hint: "Example: в наличии: 1 шт." }
+          - label: "Unit"
+            name: "unit"
+            widget: "select"
+            options:
+              - { label: "Piece", value: "piece" }
+              - { label: "Set", value: "set" }
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        fields:
+          - { label: "Main Image", name: "image", widget: "image" }
+          - { label: "Main Image Alt", name: "imageAlt", widget: "string", required: false }
+          - label: "Gallery"
+            name: "gallery"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+              - { label: "Alt", name: "imageAlt", widget: "string", required: false }
+      - label: "Details"
+        name: "details"
+        widget: "object"
+        fields:
+          - { label: "Emotional Description", name: "emotionalDescription", widget: "text" }
+          - label: "Materials"
+            name: "materials"
+            widget: "list"
+            field: { label: "Material", name: "material", widget: "string" }
+          - { label: "Size / Length", name: "size", widget: "string" }
+          - label: "Care"
+            name: "care"
+            widget: "list"
+            field: { label: "Care item", name: "careItem", widget: "string" }
+          - { label: "Delivery", name: "delivery", widget: "text", required: false }
+      - label: "Display"
+        name: "display"
+        widget: "object"
+        fields:
+          - { label: "Window Title", name: "windowTitle", widget: "string", default: "product.exe" }
+          - { label: "Available CTA Label", name: "availableCtaLabel", widget: "string", default: "Забрать" }
+          - { label: "Sold Out CTA Label", name: "soldOutCtaLabel", widget: "string", default: "Смотреть" }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", value_type: "int", default: 100 }
+      - { label: "Archive Caption", name: "archiveCaption", widget: "string", required: false }
+
+  - name: "drops"
+    label: "Drops"
+    label_singular: "Drop"
+    folder: "content/drops"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    identifier_field: "title"
+    slug: "{{fields.slug}}"
+    summary: "{{title}} - {{status}}"
+    sortable_fields: ["releasedAt", "title", "status"]
+    editor:
+      preview: false
+    fields:
+      - { label: "ID", name: "id", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Eyebrow", name: "eyebrow", widget: "string", default: "current folder" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        options:
+          - { label: "Current", value: "current" }
+          - { label: "Past", value: "past" }
+          - { label: "Upcoming", value: "upcoming" }
+      - { label: "Release Label", name: "releaseLabel", widget: "string", default: "cosmic drop" }
+      - { label: "Released At", name: "releasedAt", widget: "date", format: "YYYY-MM-DD", required: false }
+      - label: "Product IDs"
+        name: "productIds"
+        widget: "relation"
+        collection: "products"
+        search_fields: ["name", "slug", "id"]
+        value_field: "id"
+        display_fields: ["name", "status"]
+        multiple: true
+        required: false
