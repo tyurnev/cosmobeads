@@ -18,6 +18,7 @@ urlpatterns = [
     path("checkout/", views.frontend_checkout, name="frontend-checkout"),
     path("product/", views.frontend_product_shell, name="frontend-product-index"),
     path("product/<slug:slug>/", views.frontend_product_shell, name="frontend-product"),
+    path("favicon.ico", views.repo_file, {"relative_path": "assets/favicon.ico"}, name="favicon"),
     path("styles.css", views.repo_file, {"relative_path": "styles.css"}, name="frontend-styles"),
     path("script.js", views.repo_file, {"relative_path": "script.js"}, name="frontend-script"),
     re_path(r"^media/(?P<relative_path>.+)$", views.media_file, name="media-file"),
