@@ -1,7 +1,7 @@
 const renderNavLinks = (items) =>
   items.map((item) => `<a href="${item.href}">${item.label}</a>`).join("");
 
-export function SiteHeader({ leftNav, rightNav, mobileNav, social }) {
+export function SiteHeader({ leftNav, rightNav, mobileNav, social, homeHref = "#" }) {
   return `
     <header class="site-header" aria-label="Cosmo Beads navigation">
       <button class="icon-button menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false">
@@ -14,7 +14,7 @@ export function SiteHeader({ leftNav, rightNav, mobileNav, social }) {
         ${renderNavLinks(leftNav)}
       </nav>
 
-      <a class="brand-logo" href="#" aria-label="Cosmo Beads home">
+      <a class="brand-logo" href="${homeHref}" aria-label="Cosmo Beads home">
         <span>Cosmo</span>
         <span>Beads</span>
       </a>

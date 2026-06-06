@@ -1,4 +1,11 @@
-const asset = (fileName) => `assets/${fileName}`;
+import { toArchiveItem, toProductPreviewCard } from "./productDisplay.js";
+import { getCurrentDrop, getCurrentDropProducts, getSoldOutProducts } from "./products.js";
+
+const asset = (fileName) => `/assets/${fileName}`;
+
+const currentDrop = getCurrentDrop();
+const currentDropProducts = getCurrentDropProducts();
+const soldOutProducts = getSoldOutProducts();
 
 export const homepageData = {
   header: {
@@ -22,7 +29,7 @@ export const homepageData = {
     },
   },
   hero: {
-    eyebrow: "cosmic drop 06",
+    eyebrow: currentDrop?.releaseLabel ?? "cosmic drop 06",
     title: "Welcome to Cosmo Beads",
     copy: "handmade y2k bead pieces from a tiny cosmic drop",
     image: asset("hero-portal.jpg"),
@@ -43,69 +50,8 @@ export const homepageData = {
       },
     },
   },
-  products: [
-    {
-      windowTitle: "necklace.exe",
-      image: asset("drop-necklace.jpg"),
-      imageAlt: "Star Soda Necklace with pastel glass beads",
-      badge: { label: "1 of 1" },
-      stock: { label: "в наличии: 1 шт.", tone: "in-stock" },
-      name: "Star Soda Necklace",
-      price: "2 900 ₽",
-      cta: { label: "Забрать", href: "#final-cta" },
-    },
-    {
-      windowTitle: "phone-charm.exe",
-      image: asset("drop-phone-charm.jpg"),
-      imageAlt: "Pixel Planet phone charm with blue and lime beads",
-      badge: { label: "new drop", tone: "green" },
-      stock: { label: "в наличии: 2 шт.", tone: "in-stock" },
-      name: "Pixel Planet Charm",
-      price: "1 400 ₽",
-      cta: { label: "Забрать", href: "#final-cta" },
-    },
-    {
-      windowTitle: "bracelet.exe",
-      image: asset("drop-bracelet.jpg"),
-      imageAlt: "Chrome Bow Bracelet with pink and lavender beads",
-      badge: { label: "last piece", tone: "yellow" },
-      stock: { label: "последняя", tone: "low-stock" },
-      name: "Chrome Bow Bracelet",
-      price: "1 800 ₽",
-      cta: { label: "Забрать", href: "#final-cta" },
-    },
-    {
-      windowTitle: "bag-charm.exe",
-      image: asset("drop-bag-charm.jpg"),
-      imageAlt: "Aqua Moon bag charm with peach and turquoise beads",
-      badge: { label: "new drop", tone: "green" },
-      stock: { label: "в наличии: 1 шт.", tone: "in-stock" },
-      name: "Aqua Moon Bag Charm",
-      price: "1 600 ₽",
-      cta: { label: "Забрать", href: "#final-cta" },
-    },
-    {
-      windowTitle: "ring-set.exe",
-      image: asset("drop-rings.jpg"),
-      imageAlt: "Bubble Ring Set with clear blue and pink beads",
-      badge: { label: "1 of 1" },
-      stock: { label: "в наличии: 1 сет", tone: "in-stock" },
-      name: "Bubble Ring Set",
-      price: "1 200 ₽",
-      cta: { label: "Забрать", href: "#final-cta" },
-    },
-    {
-      windowTitle: "anklet.exe",
-      image: asset("drop-anklet.jpg"),
-      imageAlt: "Shell Star Anklet with aqua and pale yellow beads",
-      badge: { label: "sold out", tone: "sold" },
-      stock: { label: "архив", tone: "sold-stock" },
-      name: "Shell Star Anklet",
-      price: "2 100 ₽",
-      cta: { label: "Смотреть", href: "#archive", tone: "muted" },
-      isSold: true,
-    },
-  ],
+  currentDrop,
+  products: currentDropProducts.map(toProductPreviewCard),
   brandWorld: {
     eyebrow: "brand world",
     title: "маленькая папка украшений",
@@ -118,28 +64,7 @@ export const homepageData = {
     eyebrow: "sold out folder",
     title: "Sold Out Archive",
     link: { label: "telegram", href: "https://t.me/" },
-    items: [
-      {
-        image: asset("drop-anklet.jpg"),
-        imageAlt: "Sold out Shell Star Anklet",
-        caption: "Shell Star Anklet",
-      },
-      {
-        image: asset("drop-bracelet.jpg"),
-        imageAlt: "Sold out bracelet from archive",
-        caption: "Pink Bow Bracelet",
-      },
-      {
-        image: asset("drop-phone-charm.jpg"),
-        imageAlt: "Sold out phone charm from archive",
-        caption: "Planet Charm v1",
-      },
-      {
-        image: asset("drop-rings.jpg"),
-        imageAlt: "Sold out ring set from archive",
-        caption: "Bubble Ring Set",
-      },
-    ],
+    items: soldOutProducts.map(toArchiveItem),
     copy: {
       eyebrow: "personal archive",
       title: "прошлые изделия как коллекционные файлы",

@@ -13,7 +13,7 @@ export function HomePage() {
 
     <main>
       ${HeroPortal({ hero: homepageData.hero })}
-      ${DropSection({ products: homepageData.products })}
+      ${DropSection({ drop: homepageData.currentDrop, products: homepageData.products })}
       ${BrandWorldSection({ brandWorld: homepageData.brandWorld })}
       ${SoldOutArchivePreview({ archive: homepageData.archive })}
       ${TrustSection({ items: homepageData.trust })}

@@ -6,6 +6,7 @@ export function ProductPreviewCard(product) {
   const cardClassName = classNames("product-card", product.isSold && "sold-product");
   const buyButtonClassName = classNames("buy-button", product.cta?.tone);
   const stockClassName = classNames("stock", product.stock.tone);
+  const buyAttribute = !product.isSold && product.productSlug ? ` data-buy-product="${product.productSlug}"` : "";
 
   return Y2KWindowCard({
     title: product.windowTitle,
@@ -21,7 +22,7 @@ export function ProductPreviewCard(product) {
         </div>
         <h3>${product.name}</h3>
         <p class="price">${product.price}</p>
-        <a class="${buyButtonClassName}" href="${product.cta.href}">${product.cta.label}</a>
+        <a class="${buyButtonClassName}" href="${product.cta.href}"${buyAttribute}>${product.cta.label}</a>
       </div>
     `,
   });
