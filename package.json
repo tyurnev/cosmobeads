@@ -7,7 +7,7 @@
     "dev": "node server.js",
     "dev:django": "cd backend && python3 manage.py runserver 127.0.0.1:8000",
     "dev:node": "node server.js",
-    "postinstall": "python3 -m pip install --user -r requirements.txt",
-    "start": "cd backend && python3 manage.py collectstatic --noinput && python3 manage.py migrate --noinput && python3 manage.py import_static_products --if-empty && python3 -m gunicorn cosmobeads_backend.wsgi:application --bind 0.0.0.0:${PORT:-8000}"
+    "postinstall": "python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/python -m pip install -r requirements.txt",
+    "start": "cd backend && ../.venv/bin/python manage.py collectstatic --noinput && ../.venv/bin/python manage.py migrate --noinput && ../.venv/bin/python manage.py import_static_products --if-empty && ../.venv/bin/python -m gunicorn cosmobeads_backend.wsgi:application --bind 0.0.0.0:${PORT:-8000}"
   }
 }
