@@ -2,7 +2,7 @@
 
 export const CHECKOUT_SELECTION_STORAGE_KEY = "cosmobeads.checkoutSelection";
 export const ORDER_REQUESTS_STORAGE_KEY = "cosmobeads.orderRequests";
-export const ORDER_REQUEST_ENDPOINT = "/api/order-request";
+export const ORDER_REQUEST_ENDPOINT = "/api/order-request/";
 
 function getStorage() {
   try {

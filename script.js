@@ -2,9 +2,9 @@ import { HomePage } from "./src/App.js";
 import { CheckoutPage, bindCheckoutForm } from "./src/CheckoutPage.js";
 import { bindSiteHeaderMenu } from "./src/components/SiteHeader.js";
 import { ProductDetailPage, bindProductGallery } from "./src/ProductDetailPage.js";
-import { getProductBySlug, loadProductCatalog } from "./src/data/products.js";
+import { getProductBySlug, loadProductBySlug, loadProductCatalog } from "./src/data/products.js";
 import { selectProductForCheckout } from "./src/data/orderRequests.js";
-import { siteConfig } from "./src/data/siteConfig.js";
+import { loadSiteConfig, siteConfig } from "./src/data/siteConfig.js";
 
 const appRoot = document.querySelector("#app");
 
@@ -57,10 +57,21 @@ function setDocumentMeta({ title = siteConfig.meta.defaultTitle, description = s
 }
 
 async function renderApp() {
+  await loadSiteConfig().catch((error) => {
+    console.warn(error);
+  });
   await loadProductCatalog();
 
   const productRoute = getProductRoute();
   const checkoutRoute = getCheckoutRoute();
+
+  if (productRoute?.slug) {
+    await loadProductBySlug(productRoute.slug).catch(() => {});
+  }
+
+  if (checkoutRoute?.slug) {
+    await loadProductBySlug(checkoutRoute.slug).catch(() => {});
+  }
 
   if (checkoutRoute) {
     const product = getProductBySlug(checkoutRoute.slug);

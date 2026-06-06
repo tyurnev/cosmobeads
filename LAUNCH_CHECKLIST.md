@@ -16,13 +16,14 @@
 - Confirm `Купить` appears only for available products.
 - Confirm a newly added CMS product opens at `/product/<slug>/` after refresh.
 
-## CMS Content Check
+## Django Admin Check
 
-- Open `/admin/`.
-- Confirm `Products` and `Drops` collections are visible.
-- Confirm product images upload to `assets/products`.
-- Confirm a product saved in Decap creates or updates a JSON file in `content/products`.
-- Confirm setting product `dropId` to the current drop makes it appear on the homepage.
+- Open `/cosmo-admin/`.
+- Confirm Django login/password is required.
+- Confirm `Products`, `Drops`, `Order requests`, and `Site settings` are visible.
+- Confirm product images upload to `/media/`.
+- Confirm a product saved in Django appears through `/api/products/`.
+- Confirm setting one drop to `current` makes it appear on the homepage.
 - Confirm missing optional fields use fallback text instead of breaking the page.
 
 ## Checkout Check
@@ -40,6 +41,7 @@
 - Confirm `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set.
 - Submit a real test order request.
 - Confirm Telegram receives order id, created date/time, product name, product price, product slug, customer name, phone, Telegram/Instagram, city, delivery/address, and comment.
+- Confirm the same order appears in Django admin.
 
 ## Sold Out Product Check
 

@@ -3,7 +3,15 @@ import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { normalizeCatalog, products, PRODUCT_STATUSES, setProductCatalog } from "./src/data/products.js";
+import {
+  getCurrentDrop,
+  getCurrentDropProducts,
+  getProductBySlug,
+  normalizeCatalog,
+  products,
+  PRODUCT_STATUSES,
+  setProductCatalog,
+} from "./src/data/products.js";
 import { siteConfig } from "./src/data/siteConfig.js";
 
 const rootDir = fileURLToPath(new URL(".", import.meta.url));
@@ -95,6 +103,54 @@ function handleContentCatalog(response) {
       error: "Catalog content could not be loaded.",
     });
   }
+}
+
+function handleSiteConfig(response) {
+  sendJson(response, 200, {
+    ok: true,
+    siteConfig,
+  });
+}
+
+function handleProducts(response) {
+  const catalog = loadContentCatalog();
+  sendJson(response, 200, {
+    ok: true,
+    products: catalog.products.filter((product) => product.status !== PRODUCT_STATUSES.HIDDEN),
+  });
+}
+
+function handleProductDetail(response, slug) {
+  loadContentCatalog();
+
+  const product = getProductBySlug(slug);
+
+  if (!product) {
+    sendJson(response, 404, { ok: false, error: "Изделие не найдено." });
+    return;
+  }
+
+  sendJson(response, 200, {
+    ok: true,
+    product,
+  });
+}
+
+function handleCurrentDrop(response) {
+  loadContentCatalog();
+
+  const drop = getCurrentDrop();
+
+  if (!drop) {
+    sendJson(response, 404, { ok: false, error: "Текущий дроп не найден." });
+    return;
+  }
+
+  sendJson(response, 200, {
+    ok: true,
+    drop,
+    products: getCurrentDropProducts(),
+  });
 }
 
 function sendJson(response, statusCode, payload) {
@@ -430,12 +486,34 @@ function streamStaticFile(filePath, response) {
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
 
-  if (url.pathname === "/api/content/catalog") {
+  if (url.pathname === "/api/site-config/") {
+    handleSiteConfig(response);
+    return;
+  }
+
+  if (url.pathname === "/api/content/catalog" || url.pathname === "/api/content/catalog/") {
     handleContentCatalog(response);
     return;
   }
 
-  if (url.pathname === "/api/order-request") {
+  if (url.pathname === "/api/drops/current/") {
+    handleCurrentDrop(response);
+    return;
+  }
+
+  if (url.pathname === "/api/products/") {
+    handleProducts(response);
+    return;
+  }
+
+  const productDetailMatch = url.pathname.match(/^\/api\/products\/([^/]+)\/$/);
+
+  if (productDetailMatch) {
+    handleProductDetail(response, decodeURIComponent(productDetailMatch[1]));
+    return;
+  }
+
+  if (url.pathname === "/api/order-request" || url.pathname === "/api/order-request/") {
     await handleOrderRequest(request, response);
     return;
   }

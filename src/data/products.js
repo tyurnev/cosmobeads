@@ -64,7 +64,10 @@ const fallbackDeliveryText = siteConfig.deliveryText;
  * @property {string[]} productIds
  */
 
-export const CONTENT_CATALOG_ENDPOINT = "/api/content/catalog";
+export const CONTENT_CATALOG_ENDPOINT = "/api/content/catalog/";
+export const CURRENT_DROP_ENDPOINT = "/api/drops/current/";
+export const PRODUCTS_ENDPOINT = "/api/products/";
+export const PRODUCT_DETAIL_ENDPOINT = "/api/products/";
 
 export const PRODUCT_STATUSES = Object.freeze({
   AVAILABLE: "available",
@@ -318,11 +321,7 @@ export function getProductCatalog() {
   return { products, drops };
 }
 
-export async function loadProductCatalog({ endpoint = CONTENT_CATALOG_ENDPOINT, fetcher = globalThis.fetch } = {}) {
-  if (typeof fetcher !== "function") {
-    return getProductCatalog();
-  }
-
+async function fetchJson(fetcher, endpoint) {
   const response = await fetcher(endpoint, {
     headers: {
       Accept: "application/json",
@@ -333,7 +332,45 @@ export async function loadProductCatalog({ endpoint = CONTENT_CATALOG_ENDPOINT, 
     throw new Error("Не получилось загрузить товары.");
   }
 
-  return setProductCatalog(await response.json());
+  return response.json();
+}
+
+export async function loadProductCatalog({
+  currentDropEndpoint = CURRENT_DROP_ENDPOINT,
+  productsEndpoint = PRODUCTS_ENDPOINT,
+  fallbackEndpoint = CONTENT_CATALOG_ENDPOINT,
+  fetcher = globalThis.fetch,
+} = {}) {
+  if (typeof fetcher !== "function") {
+    return getProductCatalog();
+  }
+
+  try {
+    const [currentDropPayload, productsPayload] = await Promise.all([
+      fetchJson(fetcher, currentDropEndpoint),
+      fetchJson(fetcher, productsEndpoint),
+    ]);
+
+    return setProductCatalog({
+      drops: currentDropPayload.drop ? [currentDropPayload.drop] : currentDropPayload.drops,
+      products: productsPayload.products ?? currentDropPayload.products,
+    });
+  } catch {
+    return setProductCatalog(await fetchJson(fetcher, fallbackEndpoint));
+  }
+}
+
+export async function loadProductBySlug(slug, { endpoint = PRODUCT_DETAIL_ENDPOINT, fetcher = globalThis.fetch } = {}) {
+  if (typeof fetcher !== "function") {
+    return getProductBySlug(slug);
+  }
+
+  const payload = await fetchJson(fetcher, `${endpoint}${slug}/`);
+  const product = normalizeProduct(payload.product ?? payload);
+  const remainingProducts = products.filter((item) => item.slug !== product.slug);
+  products = [...remainingProducts, product].sort((first, second) => first.sortOrder - second.sortOrder);
+
+  return product;
 }
 
 /**

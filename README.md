@@ -1,231 +1,257 @@
 # Cosmo Beads
 
-Cosmo Beads is a private MVP storefront for handmade Y2K bead pieces. The site includes the approved homepage, product pages, checkout, a Decap CMS product editor, and a server-side order request endpoint that sends real requests to Telegram.
+Cosmo Beads is a private MVP storefront for handmade Y2K bead pieces. The approved frontend visual world stays in the existing HTML/CSS/JS app, while Django now provides the login/password admin, product catalog API, media uploads, and order request pipeline.
 
-No online payments, database, or custom admin panel are included yet. Product content is Git-based JSON managed through Decap CMS.
+No online payments are included yet. The previous Node server remains in the repository as a fallback while the Django pipeline is verified, but Django is the new backend source of truth.
 
-## Run Locally
+## Local Setup
 
-Create an environment file:
+Install Python dependencies:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Create local env:
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in Telegram credentials:
+Fill Telegram credentials when testing real order delivery:
 
 ```bash
 TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=5384335200,1948372223
-PORT=5173
+DJANGO_SECRET_KEY=change_me
+DJANGO_DEBUG=true
+DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost,cosmobeads.onrender.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://cosmobeads.onrender.com
 ```
 
-Start the site and API:
+Run migrations:
 
 ```bash
-npm run dev
+python3 backend/manage.py migrate
+```
+
+Import the existing sample products and current drop:
+
+```bash
+python3 backend/manage.py import_static_products
+```
+
+Run Django locally:
+
+```bash
+python3 backend/manage.py runserver 127.0.0.1:8000
+```
+
+Open the site:
+
+```text
+http://127.0.0.1:8000/
+```
+
+## Django Admin
+
+Create a staff/superuser account:
+
+```bash
+python3 backend/manage.py createsuperuser
 ```
 
 Open:
 
 ```text
-http://127.0.0.1:5173/
+http://127.0.0.1:8000/cosmo-admin/
 ```
 
-The admin UI is available at:
+Only Django staff users can access `/cosmo-admin/`. The old Decap `/admin/` interface is no longer required.
+
+## Products
+
+Products are edited in Django admin:
 
 ```text
-http://127.0.0.1:5173/admin/
+/cosmo-admin/catalog/product/
 ```
 
-For local Decap editing, run the Decap proxy in a second terminal from the project root:
+To add a product:
 
-```bash
-npx decap-server
+1. Open `Products` in Django admin.
+2. Fill `Basic`: id, slug, drop, name, description, status, badges.
+3. Fill `Price and stock`: amount, currency, display price, quantity, stock label, unit.
+4. Upload `main_image` and add alt text.
+5. Fill `Product details`: emotional description, materials, size, care, delivery.
+6. Fill `Display`: window title, CTA labels, sort order.
+7. Add extra gallery images in the inline `ProductImage` rows.
+
+Product statuses:
+
+- `available`: can be ordered.
+- `sold_out`: visible but blocked from checkout.
+- `hidden`: hidden from frontend API and cannot be ordered.
+
+Badges are stored as a JSON list, for example:
+
+```json
+["1 of 1", "new drop"]
 ```
 
-Keep `npm run dev` running in the first terminal.
+Materials and care are also JSON lists.
 
-## Site Config
+## Drops
 
-Launch contacts, brand name, default meta copy, delivery text, and order success copy live in:
+Drops are edited in:
 
 ```text
-src/data/siteConfig.js
+/cosmo-admin/catalog/drop/
 ```
 
-Update this file before launch with the final Instagram and Telegram URLs:
+To create a current drop:
 
-```js
-contacts: {
-  instagramUrl: "https://instagram.com/cosmobeads",
-  telegramUrl: "https://t.me/cosmobeads",
-  label: "IG/TG",
-}
-```
+1. Create or open a drop.
+2. Set `status` to `current`.
+3. Set `release_label`.
+4. Add products through the `Products` selector or set each product's `drop` field.
+5. Use product `sort_order` to control homepage order.
 
-## Telegram Setup
+Keep only one drop marked `current` for predictable homepage behavior.
 
-1. Create a bot with BotFather.
-2. Put the bot token in `TELEGRAM_BOT_TOKEN`.
-3. Add the bot to the target chat or channel.
-4. Put the target chat id in `TELEGRAM_CHAT_ID`.
-5. To notify multiple owners, separate chat ids with commas: `TELEGRAM_CHAT_ID=5384335200,1948372223`.
-6. Keep `.env` private. Commit only `.env.example`.
+## Site Settings
 
-The browser never receives Telegram secrets. Requests go to `POST /api/order-request`, and the Node server sends the Telegram message.
-
-## Test A Full Order Request
-
-1. Start the server with valid Telegram env vars.
-2. Open a product page, for example:
+Brand name, social links, meta copy, delivery text, and order success copy are editable in:
 
 ```text
-http://127.0.0.1:5173/product/star-soda-necklace/
+/cosmo-admin/site_settings/sitesettings/
 ```
 
-3. Click `Купить`.
-4. Fill in:
+The frontend loads them from:
 
+```text
+GET /api/site-config/
+```
+
+## API
+
+Django JSON endpoints:
+
+```text
+GET  /api/site-config/
+GET  /api/drops/current/
+GET  /api/products/
+GET  /api/products/<slug>/
+POST /api/order-request/
+```
+
+The product API returns the same frontend-friendly shape used by the existing UI components: `price`, `stock`, `media`, `details`, `display`, `badges`, and `sortOrder`.
+
+## Order Requests
+
+Checkout still has no registration and no online payment.
+
+`POST /api/order-request/` validates:
+
+- product slug
 - name
 - phone
 - Telegram or Instagram
 - city
-- delivery method or address
-- optional comment
+- delivery/address
+- honeypot anti-spam field
+- minimum form submission time
 
-5. Wait at least a few seconds before submitting, because the checkout has a minimum-time anti-spam check.
-6. Click `Оставить заявку`.
-7. Confirm the checkout success state appears.
-8. Confirm the Telegram chat receives a message with order id, date/time, product details, and customer details.
+If the product is missing, hidden, or sold out, Django returns a clear error and does not create a valid purchasable order.
 
-## Update Products
+If the product is available, Django creates an `OrderRequest`, sends Telegram notification with `TELEGRAM_BOT_TOKEN` and comma-separated `TELEGRAM_CHAT_ID`, then stores `telegram_sent_at` or `telegram_error`.
 
-Product content lives in JSON files:
+Orders are visible in:
 
 ```text
-content/products/*.json
-content/drops/*.json
+/cosmo-admin/orders/orderrequest/
 ```
 
-`src/data/products.js` is now the typed loader/normalizer. Do not edit products there by hand.
+## Test A Full Order Request
 
-Each product file supports:
+1. Set real `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `.env`.
+2. Make sure the bot has received `/start` from each owner or is added to the target chat.
+3. Run:
 
-- `id`
-- `name`
-- `slug`
-- `dropId`
-- `price.amount`
-- `price.currency`
-- `price.display`
-- `status`: `available`, `sold_out`, or `hidden`
-- `badges`: `1 of 1`, `new drop`, `last piece`, `sold out`
-- `media.image`
-- `media.imageAlt`
-- `media.gallery`
-- `description`
-- `stock.quantity`
-- `stock.label`
-- `stock.unit`
-- `details.emotionalDescription`
-- `details.materials`
-- `details.size`
-- `details.care`
-- `details.delivery`
-- `display.windowTitle`
-- `display.availableCtaLabel`
-- `display.soldOutCtaLabel`
-- `sortOrder`
-- `archiveCaption`
+```bash
+python3 backend/manage.py runserver 127.0.0.1:8000
+```
 
-### Add A Product In Decap CMS
-
-1. Open `/admin/`.
-2. Go to `Products` and create a new product.
-3. Fill the required identity fields: `ID`, `Slug`, `Drop`, `Name`, `Short Description`, `Status`.
-4. Fill price and stock fields.
-5. Upload the main image. Decap saves uploaded product images to:
+4. Open an available product page:
 
 ```text
-assets/products
+http://127.0.0.1:8000/product/star-soda-necklace/
 ```
 
-6. Fill emotional description, materials, size, care, and display fields.
-7. Set `Sort Order` to control card order in the drop.
-8. Save/publish the entry.
-
-After publish, Decap creates or updates a file in `content/products`.
-
-### Mark A Product Sold Out
-
-In `/admin/`, open the product and set:
-
-- `Status`: `sold_out`
-- `Badges`: include `sold out`
-- `Stock Quantity`: `0`
-- `Stock Label`: `архив` or another user-facing sold-out label
-
-Sold out products stay visible but cannot be ordered.
-
-### Add A Product To The Current Drop
-
-Set the product `Drop` field to the current drop id, for example:
-
-```text
-cosmic-drop-06
-```
-
-You can also open `Drops` in `/admin/` and add the product id to `Product IDs` for explicit ordering. If the product has the current `dropId`, the site can still show it even if it is not manually listed in `Product IDs`.
-
-### Required Product Fields
-
-Required in the CMS: `id`, `slug`, `dropId`, `name`, `description`, `status`, `price`, `stock`, `media.image`, `details.emotionalDescription`, `details.materials`, `details.size`, `details.care`, `display`, and `sortOrder`.
-
-Optional fields have safe fallbacks: `media.imageAlt`, `media.gallery`, `details.delivery`, and `archiveCaption`. Missing optional fields should not break the homepage, product page, or checkout.
+5. Click `Купить`.
+6. Fill the checkout form.
+7. Wait at least a few seconds before submitting.
+8. Click `Оставить заявку`.
+9. Confirm checkout success state appears.
+10. Confirm Telegram receives the order message.
+11. Confirm the order appears in Django admin.
 
 ## Deployment
 
-Deploy as a Node app, not static-only hosting, because order requests require the server-side API.
+Deploy as a Python/Django service.
 
-Use:
+Recommended build command:
 
 ```bash
-npm start
+python3 -m pip install -r requirements.txt && python3 backend/manage.py collectstatic --noinput
+```
+
+Recommended start command:
+
+```bash
+cd backend && python manage.py migrate --noinput && gunicorn cosmobeads_backend.wsgi:application
 ```
 
 Required environment variables:
 
 ```bash
+DJANGO_SECRET_KEY
+DJANGO_ALLOWED_HOSTS=cosmobeads.onrender.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://cosmobeads.onrender.com
 TELEGRAM_BOT_TOKEN
 TELEGRAM_CHAT_ID
-PORT
 ```
 
-`TELEGRAM_CHAT_ID` may contain one id or several comma-separated ids.
+For first deployment, run once:
 
-The server serves static files, `/api/content/catalog`, and `/api/order-request` from the same origin.
-
-For deployed Decap access, `/admin/` uses the GitHub backend configured in `admin/config.yml`:
-
-```yaml
-backend:
-  name: github
-  repo: tyurnev/cosmobeads
-  branch: main
+```bash
+python3 backend/manage.py createsuperuser
+python3 backend/manage.py import_static_products
 ```
 
-Make sure the deployment has GitHub/Decap authentication configured for the people who should edit products.
+SQLite is used for local MVP development. For production on Render, attach persistent storage for `backend/db.sqlite3` and `backend/media/`, or migrate to a managed database later.
+
+## Legacy Node Server
+
+The Node server is still present:
+
+```bash
+npm run dev
+```
+
+It can serve the old static fallback and compatible API routes while Django is being tested. The Django admin and database-backed catalog require running Django.
 
 ## Pre-Launch Checklist
 
-- Final Instagram URL is set in `src/data/siteConfig.js`.
-- Final Telegram URL is set in `src/data/siteConfig.js`.
-- `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set in deployment env.
-- `/admin/` opens and lists Products and Drops.
-- Product JSON files are present in `content/products`.
-- A real order request reaches Telegram.
+- `/cosmo-admin/` opens and requires Django login.
+- A superuser/staff account exists.
+- Products and drops are imported or created in Django.
+- Exactly one drop is marked `current`.
+- Homepage loads products from Django.
+- Product pages load by slug from Django.
+- Product images load from `/media/`.
+- Checkout opens for available products.
 - Sold out products cannot be ordered.
-- Product images load on homepage, product pages, and checkout.
-- Mobile checkout is readable and the CTA is easy to tap.
-- No online payment wording promises payment on the site.
+- A real order request reaches Telegram.
+- The order appears in Django admin.
+- `.env` is not committed.
