@@ -1,16 +1,9 @@
-const header = document.querySelector(".site-header");
-const menuToggle = document.querySelector(".menu-toggle");
+import { HomePage } from "./src/App.js";
+import { bindSiteHeaderMenu } from "./src/components/SiteHeader.js";
 
-if (header && menuToggle) {
-  menuToggle.addEventListener("click", () => {
-    const isOpen = header.classList.toggle("is-open");
-    menuToggle.setAttribute("aria-expanded", String(isOpen));
-  });
+const appRoot = document.querySelector("#app");
 
-  header.querySelectorAll(".mobile-nav a").forEach((link) => {
-    link.addEventListener("click", () => {
-      header.classList.remove("is-open");
-      menuToggle.setAttribute("aria-expanded", "false");
-    });
-  });
+if (appRoot) {
+  appRoot.innerHTML = HomePage();
+  bindSiteHeaderMenu(appRoot);
 }
